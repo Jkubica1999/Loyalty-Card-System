@@ -1,0 +1,280 @@
+algorithm/ pseudo code
+
+
+LoyaltyCard.java
+
+Import Random
+
+Create abstract class LoyaltyCard
+
+Create private String userId
+Create private String userName
+Create private double moneySpent
+Create private boolean cardActive
+
+Create a constructor that takes userName, moneySpent and cardActive as arguments
+	Call getRandomId and assign the result to userId
+	Set this.userName to userName
+	Set this.moneySpent to moneySpent
+	Set this.cardActive to cardActive
+
+Create a constructor that takes userId, userName, moneySpent and cardActive as arguments
+	Set this.userId to userId
+	Set this.userName to userName
+	Set this.moneySpent to moneySpent
+	Set this.cardActive to cardActive
+
+Create a getter for userId
+Create a getter for userName
+Create a getter for moneySpent
+Create a getter for cardActive
+
+Create a method getTier that returns a String
+	Switch on this.getBonusPoints cast to int
+	Case 10: return "Bronze"
+	Case 50: return "Silver"
+	Case 100: return "Gold"
+	Case 200: return "Platinum"
+	Default: return "Unknown"
+
+Create a setter for userName
+Create a setter for moneySpent
+Create a setter for cardActive
+
+Declare abstract method getBonusPoints that returns a double
+Declare abstract method getConversionRate that returns a double
+
+Create a method calculatePoints that returns a double
+	Create double tierBonus and assign it this.getBonusPoints()
+	Create double conversion and assign it this.getConversionRate()
+	Create double points and assign it moneySpent * conversion + tierBonus
+	Return points
+
+Create a method getTotalPointsEarned that returns a double
+	If this.isCardActive() is false
+		Return 0
+	Else
+		Return this.calculatePoints()
+
+Create a static method getRandomId that returns a String
+	Create a Random object
+	Create an empty String id
+	For 6 times counting i from 0
+		Create int num and assign it a random integer between 0 and 35
+		If num is greater than 9
+			Add 55 to num
+		Else
+			Add 48 to num
+		Cast num to a char and concatenate it to id
+	Return id
+
+Override toString to return a formatted String with userId, userName, tier, moneySpent formatted to 2 decimal places, cardActive and getTotalPointsEarned formatted to 2 decimal places
+
+
+Bronze.java
+
+Create class Bronze extending LoyaltyCard
+
+Create a constructor that takes userName, moneySpent and cardActive as arguments
+	Call super with userName, moneySpent and cardActive
+
+Create a constructor that takes userId, userName, moneySpent and cardActive as arguments
+	Call super with userId, userName, moneySpent and cardActive
+
+Override getBonusPoints to return 10
+Override getConversionRate to return 0.2 
+
+Silver.java
+
+Create class Silver extending LoyaltyCard
+
+Create a constructor that takes userName, moneySpent and cardActive as arguments
+	Call super with userName, moneySpent and cardActive
+
+Create a constructor that takes userId, userName, moneySpent and cardActive as arguments
+	Call super with userId, userName, moneySpent and cardActive
+
+Override getBonusPoints to return 50
+Override getConversionRate to return 0.3
+
+Gold.java
+
+Create class Gold extending LoyaltyCard
+
+Create a constructor that takes userName, moneySpent and cardActive as arguments
+	Call super with userName, moneySpent and cardActive
+
+Create a constructor that takes userId, userName, moneySpent and cardActive as arguments
+	Call super with userId, userName, moneySpent and cardActive
+
+Override getBonusPoints to return 100
+Override getConversionRate to return 0.4
+
+Platinum.java
+
+Create class Platinum extending LoyaltyCard
+
+Create a constructor that takes userName, moneySpent and cardActive as arguments
+	Call super with userName, moneySpent and cardActive
+
+Create a constructor that takes userId, userName, moneySpent and cardActive as arguments
+	Call super with userId, userName, moneySpent and cardActive
+
+Override getBonusPoints to return 200
+Override getConversionRate to return 0.5
+
+
+
+
+DriverClass.java
+
+Import BufferedReader, FileInputStream, FileWriter, InputStreamReader, IOException
+Import Scanner
+Import ArrayList
+
+Create class DriverClass
+
+Create main
+	Create an empty ArrayList of LoyaltyCard named allCards
+	Create a Scanner named input
+	Create String csvPath with value "src/MyCode/cards.csv"
+	Create int csvColumnCount with value 5
+	Create boolean activeMenu set to true
+
+	Try reading the CSV file with BufferedReader and InputStreamReader
+		Skip one row
+		Create int failCount set to 0
+		While the next line read by BufferedReader is not null
+			Create String array values and assign it the result of splitting line by ","
+			If values.length equals csvColumnCount
+				Try
+					Create String userId from values[4] trimmed
+					Create String userName from values[1] trimmed
+					Create double moneySpent from parsing values[2] trimmed
+					Create boolean cardActive from parsing values[3] trimmed to lowercase
+					Create String type from values[0] trimmed to lowercase
+					Switch on type
+					Case "bronze": add new Bronze to allCards with the parsed values
+					Case "silver": add new Silver to allCards with the parsed values
+					Case "gold": add new Gold to allCards with the parsed values
+					Case "platinum": add new Platinum to allCards with the parsed values
+					Default: increment failCount
+				Catch Exception f: increment failCount and print stack trace
+			Else: print skipped row message and increment failCount
+		If failCount is greater than 0 print how many cards failed to load
+	Catch IOException e: print error message and stack trace
+
+	While activeMenu is true
+		Call printMenu
+		Read menuChoice using readInt
+		Switch on menuChoice
+		Case 1: call viewAllCards with allCards
+		Case 2: read searchId, call findCardById, print result or not found message
+		Case 3: call registerCard with allCards and input
+		Case 4: read deleteId, call deleteCard with allCards and deleteId
+		Case 5: read updateId, call updateCard with allCards, updateId and input
+		Case 6: call displayTopPerTier with allCards
+		Case 7: call saveToCSV with allCards and csvPath
+		Case 8: set activeMenu to false and print exit message
+		Default: print invalid option message
+
+	Close scanner
+
+Create static method printMenu
+	Print the 8 menu options
+
+Create static method viewAllCards that takes ArrayList cards
+	If cards is empty print message and return
+	For each card in cards
+		Print card.toString()
+
+Create static method findCardById that takes ArrayList cards and String id
+	For each card in cards
+		If card.getUserId() equals id
+			Return card
+	Return null
+
+Create static method registerCard that takes ArrayList cards and Scanner input
+	Read name from input
+	Read moneySpent using readDouble
+	While moneySpent is less than 0
+		Print error message and read moneySpent again
+	Read cardActive using readBoolean
+	Create String array validTiers with "bronze", "silver", "gold", "platinum"
+	Create String tier and boolean isValid set to false
+	While not isValid
+		Read tier from input trimmed to lowercase
+		For the length of validTiers
+			If validTiers[i] equals tier
+				Set isValid to true
+		If not isValid print invalid message
+	Switch on tier
+	Case "bronze": add new Bronze to cards
+	Case "silver": add new Silver to cards
+	Case "gold": add new Gold to cards
+	Case "platinum": add new Platinum to cards
+	Print success message
+
+Create static method deleteCard that takes ArrayList cards and String id
+	Call findCardById and assign result to toDelete
+	If toDelete is not null
+		Remove toDelete from cards and print success message
+	Else
+		Print not found message
+
+Create static method updateCard that takes ArrayList cards, String id and Scanner input
+	Call findCardById and assign result to card
+	If card is null print not found message and return
+	Read new name from input, if not empty call card.setUserName
+	Read new moneySpent using readDouble
+	While newMoneySpent is less than 0
+		Print error message and read newMoneySpent again
+	Call card.setMoneySpent with newMoneySpent
+	Read new cardActive using readBoolean and call card.setCardActive
+	Print success message
+
+Create static method displayTopPerTier that takes ArrayList cards
+	Create LoyaltyCard variables topBronze, topSilver, topGold, topPlatinum all set to null
+	For each card in cards
+		If card is not active continue to next card
+		Switch on card.getTier()
+		Case "Bronze"
+			If topBronze is null or card has more points than topBronze
+				Set topBronze to card
+		Case "Silver"
+			If topSilver is null or card has more points than topSilver
+				Set topSilver to card
+		Case "Gold"
+			If topGold is null or card has more points than topGold
+				Set topGold to card
+		Case "Platinum"
+			If topPlatinum is null or card has more points than topPlatinum
+				Set topPlatinum to card
+	Print the top card name and points for each tier, or a no active cards message if null
+
+Create static method saveToCSV that takes ArrayList cards and String csvPath
+	Try with FileWriter
+		Write header row "Type,Name,MoneySpent,Active,ID"
+		For each card in cards
+			Write a line with card.getTier(), getUserName(), getMoneySpent(), isCardActive(), getUserId()
+		Print success message
+	Catch IOException e: print error message and stack trace
+
+Create static method readInt that takes Scanner input
+	While true
+		Try
+			Read an int, clear scanner and return value
+		Catch Exception e: print invalid message and clear scanner
+
+Create static method readDouble that takes Scanner input
+	While true
+		Try
+			Read a double, clear scanner and return value
+		Catch Exception e: print invalid message and clear scanner
+
+Create static method readBoolean that takes Scanner input
+	While true
+		Try
+			Read a boolean, clear scanner and return value
+		Catch Exception e: print invalid message and clear scanner
+
